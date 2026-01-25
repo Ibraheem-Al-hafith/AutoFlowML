@@ -5,6 +5,7 @@ from src.processing import (
     get_categorical_transformer, 
     AutoDFColumnTransformer
 )
+from sklearn.compose import make_column_selector
 from src.utils.logger import logger
 from typing import Dict, Any, List
 
@@ -36,8 +37,8 @@ class PipelineArchitect:
 
         # 2. Processing Block
         processing_step = AutoDFColumnTransformer(transformers=[
-            ("num_pipe", get_numeric_transformer(), numeric_features),
-            ("cat_pipe", get_categorical_transformer(), categorical_features)
+            ("num_pipe", get_numeric_transformer(), make_column_selector(dtype_include=['number'])),
+            ("cat_pipe", get_categorical_transformer(), make_column_selector(dtype_exclude=["number"]))
         ])
 
         # 3. Final Assembly

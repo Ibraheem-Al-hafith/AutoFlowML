@@ -15,14 +15,14 @@ from src.utils.logger import logger
 # Defining Nested Model Registry:
 MODEL_REGISTRY: Dict[str, Dict[str, Any]] = {
     "classification": {
-        "rf": RandomForestClassifier,
+        "random_forest": RandomForestClassifier,
         "xgboost": XGBClassifier,
         "logistic": LogisticRegression,
         "lightgbm": LGBMClassifier,
         "tree": DecisionTreeClassifier,
     },
     "regression": {
-        "rf": RandomForestRegressor,
+        "random_forest": RandomForestRegressor,
         "xgboost": XGBRegressor,
         "ridge": Ridge,
         "lightgbm": LGBMRegressor,
