@@ -1,0 +1,28 @@
+# AutoFlowML Configuration
+metadata:
+  project_name: "AutoFlowML"
+  version: "1.0.0"
+
+cleaning:
+  variance:
+    min_threshold: 0.01  # Handles static columns (nunique=1) and low-signal features
+  nan_thresholds:
+    numeric: 0.5         # Drop numeric columns if > 50% missing
+    categorical: 0.3     # Drop categorical columns if > 30% missing
+
+task_detection:
+  cardinality_threshold: 10 # Unique values below this are "Category", above are "Text"
+
+model_selection:
+  cv_folds: 5
+  scoring_metric: "f1_weighted"
+  use_fine_tuning: false
+  models:
+    classification:
+      - "random_forest"
+      - "logistic_regression"
+      - "xgboost"
+    regression:
+      - "random_forest"
+      - "ridge"
+      - "xgboost"
