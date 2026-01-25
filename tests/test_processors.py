@@ -1,7 +1,7 @@
 import pytest 
 import pandas as pd
 import numpy as np
-from ..src.processors import VarianceStripper, UniversalDropper
+from src.processors import VarianceStripper, UniversalDropper
 
 @pytest.fixture
 def sample_df():

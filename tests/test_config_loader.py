@@ -1,7 +1,7 @@
 import pytest
 import yaml
 from pathlib import Path
-from ..src.utils.config_loader import load_config
+from src.utils.config_loader import load_config
 
 def test_load_config_success(tmp_path):
     """Test that a valid YAML file is loaded correctly into a dictionary."""
