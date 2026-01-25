@@ -5,28 +5,47 @@ from src.processing import (
     get_categorical_transformer, 
     AutoDFColumnTransformer
 )
+from src.utils.logger import logger
+from typing import Dict, Any, List
 
-def build_full_pipeline(config, numeric_cols, categorical_cols, model):
-    """
-    Stitches the components together.
-    """
-    # 1. Cleaning Stage
-    cleaner = Pipeline(steps=[
-        ("variance", VarianceStripper(min_threshold=config['cleaning']['variance']['min_threshold'])),
-        ("nan_dropper", UniversalDropper(thresholds=config['cleaning']['nan_thresholds']))
-    ])
-
-    # 2. Processing Stage (The Column Transformer)
-    processor = AutoDFColumnTransformer(transformers=[
-        ("num", get_numeric_transformer(), numeric_cols),
-        ("cat", get_categorical_transformer(), categorical_cols)
-    ])
-
-    # 3. Final Pipeline
-    full_pipe = Pipeline(steps=[
-        ("cleaning", cleaner),
-        ("processing", processor),
-        ("model", model)
-    ])
+class PipelineArchitect:
+    """Assembles the cleaning, processing, and modeling blocks into one Pipeline."""
     
-    return full_pipe
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+
+    def build_pipeline(
+        self, 
+        model_instance: Any, 
+        numeric_features: List[str], 
+        categorical_features: List[str]
+    ) -> Pipeline:
+        """Constructs the full end-to-end sklearn Pipeline."""
+        
+        logger.info("PipelineArchitect: Assembling components...")
+
+        # 1. Cleaning Block
+        cleaning_step = Pipeline(steps=[
+            ("variance_stripper", VarianceStripper(
+                min_threshold=self.config['cleaning']['variance']['min_threshold']
+            )),
+            ("nan_dropper", UniversalDropper(
+                thresholds=self.config['cleaning']['nan_thresholds']
+            ))
+        ])
+
+        # 2. Processing Block
+        processing_step = AutoDFColumnTransformer(transformers=[
+            ("num_pipe", get_numeric_transformer(), numeric_features),
+            ("cat_pipe", get_categorical_transformer(), categorical_features)
+        ])
+
+        # 3. Final Assembly
+        full_pipeline = Pipeline(steps=[
+            ("cleaning", cleaning_step),
+            ("processing", processing_step),
+            ("model", model_instance)
+        ])
+
+        logger.info("PipelineArchitect: Pipeline built successfully.")
+        return full_pipeline
