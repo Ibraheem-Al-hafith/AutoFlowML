@@ -1,7 +1,7 @@
 import yaml
 from pathlib import Path
 from typing import Any, Dict
-from logger import logger
+from .logger import logger
 
 class ConfigNode(dict):
     """Dictionary -> object-style configuration tree with pretty-printing."""
