@@ -61,7 +61,7 @@
 1. **Clone the repository**:
 
 ```bash
-git https://github.com/Ibraheem-Al-hafith/AutoFlowML.git
+git clone https://github.com/Ibraheem-Al-hafith/AutoFlowML.git
 cd AutoFlowML
 
 ```
