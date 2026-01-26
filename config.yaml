@@ -13,8 +13,10 @@ cleaning:
 task_detection:
   cardinality_threshold: 10 # Unique values below this are "Category", above are "Text"
 
-model_selection:
+settings:
   cv_folds: 5
+  random_state: 42
+model_selection:
   scoring_metric: "f1_weighted"
   use_fine_tuning: false
   models:
@@ -22,10 +24,14 @@ model_selection:
       - "random_forest"
       - "logistic_regression"
       - "xgboost"
+      - "lightgbm"
+      - "tree"
     regression:
       - "random_forest"
       - "ridge"
       - "xgboost"
+      - "lightgbm"
+      - "tree"
 
 evaluation:
   classification:

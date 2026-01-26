@@ -18,8 +18,6 @@ class PipelineArchitect:
     def build_pipeline(
         self, 
         model_instance: Any, 
-        numeric_features: List[str], 
-        categorical_features: List[str]
     ) -> Pipeline:
         """Constructs the full end-to-end sklearn Pipeline."""
         

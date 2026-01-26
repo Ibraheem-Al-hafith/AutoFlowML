@@ -1,62 +1,71 @@
 import streamlit as st
 import pandas as pd
+import joblib
+import io
+from pathlib import Path
 from src.utils.config_loader import load_config
 from src.utils.logger import logger
 from src.engine import TaskDetector, get_model_from_registry
 from src.pipeline import PipelineArchitect
-from pathlib import Path
+from src.evaluation import ModelEvaluator, LeaderboardEngine
 
-# Setup Page
 st.set_page_config(page_title="AutoFlowML", layout="wide")
-st.title("🌊 AutoFlowML: Professional Pipeline Engine")
+st.title("🌊 AutoFlowML")
 
-# 1. Load Configuration
 config = load_config(Path("config.yaml"))
 
-# 2. File Upload
-uploaded_file = st.file_uploader("Upload your CSV dataset", type="csv")
+# Sidebar Overrides
+st.sidebar.header("⚙️ Global Settings")
+config['settings']['cv_folds'] = st.sidebar.number_input("CV Folds", 2, 10, config['settings']['cv_folds'])
+config['settings']['random_state'] = st.sidebar.number_input("Random Seed", 0, 9999, config['settings']['random_state'])
+
+uploaded_file = st.file_uploader("Upload Dataset (CSV)", type="csv")
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
     st.write("### Data Preview", df.head())
-
-    # 3. Target Selection
-    target_col = st.selectbox("Select Target Column", options=df.columns)
+    target_col = st.selectbox("Select Target", options=df.columns)
     
-    if st.button("🚀 Analyze & Build Pipeline"):
-        # Setup UI Containers
-        log_container = st.expander("🛠️ Processing Logs", expanded=True)
+    if st.button("🚀 Run AutoML Leaderboard"):
+        X, y = df.drop(columns=[target_col]), df[target_col]
         
-        # --- EXECUTION ENGINE ---
-        X = df.drop(columns=[target_col])
-        y = df[target_col]
-
-        # Step 1: Detect Task
+        # 1. Detection
         detector = TaskDetector(target_column=target_col)
-        detected_task = detector.detect(y)
-        st.info(f"Detected Task: **{detected_task.upper()}**")
+        task = detector.detect(y)
+        st.info(f"Detected Task: **{task.upper()}**")
 
-        # Step 2: Assemble Pipeline
-        # (For now, we grab the first model in the config registry)
-        model_name = config['model_selection']['models'][detected_task][0]
-        model_class = get_model_from_registry(detected_task, model_name)
-        
-        # Split features for the architect
-        num_features = X.select_dtypes(include=['number']).columns.tolist()
-        cat_features = X.select_dtypes(exclude=['number']).columns.tolist()
-
+        # 2. Setup Architect & Evaluator
+        evaluator = ModelEvaluator(task, config['evaluation'][task])
         architect = PipelineArchitect(config)
-        pipeline = architect.build_pipeline(model_class(), num_features, cat_features)
+        leaderboard = LeaderboardEngine(config, task, evaluator)
 
-        # Step 3: Fit
-        with st.spinner("Training pipeline..."):
-            pipeline.fit(X, y)
+        # 3. Competition
+        with st.spinner("Training models and validating..."):
+            df_res = leaderboard.run_competition(architect, X, y)
+            st.session_state['leaderboard'] = df_res
+            
+            # 4. Finalize Winner
+            winner_slug = df_res.iloc[0]['Model'].lower()
+            model_cls = get_model_from_registry(task, winner_slug)
+            
+            # Retrain on full data for export
+            final_pipe = architect.build_pipeline(model_cls())
+            final_pipe.fit(X, y)
+            st.session_state['final_pipeline'] = final_pipe
+            st.session_state['winner_name'] = winner_slug
+
+    # Display Results if they exist in state
+    if 'leaderboard' in st.session_state:
+        st.write("### 🏆 Leaderboard")
+        st.dataframe(st.session_state['leaderboard'], use_container_width=True)
         
-        st.success("Pipeline built and trained successfully!")
-
-        # --- LOG DISPLAY ---
-        # Fetch logs from our custom handler and show them in the expander
-        for handler in logger.handlers:
-            if hasattr(handler, 'logs'):
-                for log in handler.logs:
-                    log_container.code(log)
+        # 5. Download Section
+        st.write("### 💾 Export Winner")
+        buffer = io.BytesIO()
+        joblib.dump(st.session_state['final_pipeline'], buffer)
+        st.download_button(
+            label=f"Download {st.session_state['winner_name'].upper()} Pipeline (.pkl)",
+            data=buffer.getvalue(),
+            file_name=f"autoflow_{st.session_state['winner_name']}.pkl",
+            mime="application/octet-stream"
+        )
