@@ -61,12 +61,12 @@
 1. **Clone the repository**:
 
 ```bash
-git clone https://github.com/yourusername/AutoFlowML.git
+git https://github.com/Ibraheem-Al-hafith/AutoFlowML.git
 cd AutoFlowML
 
 ```
 
-2. **Install dependencies using `uv**`:
+2. **Install dependencies using `uv`**:
 
 ```bash
 uv sync
@@ -207,12 +207,12 @@ Ensure your test folder mirrors your `src/` folder. This makes it intuitive for 
 
 ```text
 tests/
-├── test_cleaning.py      # Validates Cleaning pipeline logic
-├── test_config_loader.py  # Validates loading configurations
-├── test_engine.py       # Validates the task detector
-├── test_evaluation.py       # Validates the evaluation logic
-├── test_full_pipeline.py       # Validates end-to-end fit/predict
-└── test_preprocessing.py # Validates the transformers logic
+  ├── test_cleaning.py      # Validates Cleaning pipeline logic
+  ├── test_config_loader.py  # Validates loading configurations
+  ├── test_engine.py       # Validates the task detector
+  ├── test_evaluation.py       # Validates the evaluation logic
+  ├── test_full_pipeline.py       # Validates end-to-end fit/predict
+  └── test_preprocessing.py # Validates the transformers logic
 
 ```
 

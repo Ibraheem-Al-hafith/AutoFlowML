@@ -29,11 +29,11 @@ model_selection:
       # - "lightgbm"
       - "tree"
     regression:
-      # - "random_forest"
+      - "random_forest"
       - "ridge"
       - "xgboost"
       - "lightgbm"
-      # - "tree"
+      - "tree"
 
 evaluation:
   classification:
