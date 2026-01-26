@@ -84,12 +84,12 @@ class CardinalityStripper(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
         X = pd.DataFrame(X)
         n_rows = len(X)
+        # Check uniqueness share for all columns (include float/int/object)
+        self.cols_to_drop_ = []
         for col in X.columns:
-            # Only check non-numeric or discrete-looking columns
-            if not pd.api.types.is_float_dtype(X[col]):
-                share_unique = X[col].nunique() / n_rows
-                if share_unique >= self.threshold:
-                    self.cols_to_drop_.append(col)
+            share_unique = X[col].nunique() / n_rows if n_rows > 0 else 0
+            if share_unique >= self.threshold:
+                self.cols_to_drop_.append(col)
 
         msg: str = f"CardinalityStripper: Dropped {len(self.cols_to_drop_)} columns: {self.cols_to_drop_}" \
                     if self.cols_to_drop_ else "CardinalityStripper: No columns dropped."
@@ -102,5 +102,5 @@ class CardinalityStripper(BaseEstimator, TransformerMixin):
 
     def get_feature_names_out(self, input_features=None):
         if input_features is None:
-            return None
-        return [f for f in input_features if f not in self.cols_to_drop_]
+            return np.array([c for c in self.cols_to_drop_])
+        return np.array([f for f in input_features if f not in self.cols_to_drop_])
