@@ -25,7 +25,7 @@ def test_full_pipeline_flow():
     # 3. Engine: Detect Task & Get Model
     detector = TaskDetector(target_column="target")
     task = detector.detect(y)
-    model_class = get_model_from_registry(task, "rf")
+    model_class = get_model_from_registry(task, "xgboost")
     model_inst = model_class(n_estimators=10)
 
     # 4. Architect: Build & Fit

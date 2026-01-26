@@ -26,3 +26,14 @@ model_selection:
       - "random_forest"
       - "ridge"
       - "xgboost"
+
+evaluation:
+  classification:
+    - accuracy
+    - precision
+    - recall
+    - f1
+  regression:
+    - rmse
+    - mae
+    - r2

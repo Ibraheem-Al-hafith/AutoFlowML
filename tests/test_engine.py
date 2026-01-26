@@ -27,12 +27,12 @@ def test_task_detection_regression():
 
 def test_registry_retrieval():
     # Valid retrieval
-    rf_class = get_model_from_registry("classification", "rf")
-    assert rf_class == RandomForestClassifier
+    random_forest_class = get_model_from_registry("classification", "random_forest")
+    assert random_forest_class == RandomForestClassifier
     
     # Invalid task
     with pytest.raises(ValueError):
-        get_model_from_registry("clustering", "rf")
+        get_model_from_registry("clustering", "random_forest")
     
     # Invalid model name
     with pytest.raises(KeyError):
