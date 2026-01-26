@@ -7,7 +7,7 @@ def test_cross_validator_regression():
     X = pd.DataFrame({"feat": range(100)})
     y = pd.Series(range(100)) + np.random.normal(0, 0.1, 100)
     
-    cv = CrossValidator(n_splits=3)
+    cv = CrossValidator(n_splits=3, random_state=42)
     results = cv.run_cv(LinearRegression(), X, y, task_type="regression")
     
     assert "mean_loss" in results

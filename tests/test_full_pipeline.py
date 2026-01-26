@@ -31,9 +31,7 @@ def test_full_pipeline_flow():
     # 4. Architect: Build & Fit
     architect = PipelineArchitect(config)
     pipeline = architect.build_pipeline(
-        model_instance=model_inst,
-        numeric_features=["age", "salary"],
-        categorical_features=["city"]
+        model_instance=model_inst
     )
 
     pipeline.fit(X, y)
