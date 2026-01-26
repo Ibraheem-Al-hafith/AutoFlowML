@@ -1,8 +1,10 @@
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, RobustScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, RobustScaler, LabelEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+from sklearn.base import BaseEstimator, clone
+
 
 def get_numeric_transformer(scaler_type: str = "standard") -> Pipeline:
     """Returns a pipeline for numeric data: Imputation + Scaling."""
@@ -51,3 +53,53 @@ class AutoDFColumnTransformer(ColumnTransformer):
         )
         # The "magic" switch to ensure DataFrames are returned
         self.set_output(transform="pandas")
+
+class TargetEncodedModelWrapper(BaseEstimator):
+    """
+    Transparent proxy wrapper that handles target encoding/decoding 
+    while exposing the underlying model's attributes.
+    """
+    def __init__(self, model, task_type="classification"):
+        self.model = model
+        self.task_type = task_type
+        self.label_encoder = LabelEncoder()
+        
+    def fit(self, X, y):
+        # We clone the model to ensure a fresh state
+        self.model_ = clone(self.model)
+        
+        if self.task_type == "classification":
+            y_encoded = self.label_encoder.fit_transform(y)
+            self.classes_ = self.label_encoder.classes_
+            self.model_.fit(X, y_encoded)
+        else:
+            self.model_.fit(X, y)
+        return self
+
+    def predict(self, X):
+        preds = self.model_.predict(X)
+        if self.task_type == "classification":
+            return self.label_encoder.inverse_transform(preds)
+        return preds
+
+    def predict_proba(self, X):
+        # Explicitly expose predict_proba if the underlying model has it
+        if hasattr(self.model_, "predict_proba"):
+            return self.model_.predict_proba(X)
+        raise AttributeError(f"The underlying {type(self.model_).__name__} does not support predict_proba.")
+
+    def __getattr__(self, name):
+        """
+        Proxy calls to the underlying model if they don't exist on the wrapper.
+        This allows access to .feature_importances_, .coef_, etc.
+        """
+        if 'model_' in self.__dict__:
+            return getattr(self.model_, name)
+        # If model hasn't been fitted yet, check the template model
+        return getattr(self.model, name)
+
+    def __dir__(self):
+        """Helper for tab-completion and inspection to show proxy attributes."""
+        base_dir = list(object.__dir__(self))
+        model_dir = dir(self.model_ if hasattr(self, 'model_') else self.model)
+        return list(set(base_dir + model_dir))

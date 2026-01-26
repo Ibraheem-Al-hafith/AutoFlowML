@@ -8,6 +8,8 @@ from sklearn.base import clone
 from src.utils.logger import logger
 from src.engine import get_model_from_registry
 import inspect
+from src.processing import TargetEncodedModelWrapper
+
 
 class ModelEvaluator:
     """Calculates metrics based on task type."""
@@ -39,7 +41,7 @@ class CrossValidator:
 
     def run_cv(self, pipeline: Any, X: pd.DataFrame, y: pd.Series, task_type: str) -> Dict[str, Any]:
         logger.info(f"CV: Starting {self.n_splits}-fold validation.")
-        oof_preds = np.zeros(len(y))
+        oof_preds = np.empty_like(y)
         scores = []
         
         # Stratification Logic
@@ -74,25 +76,36 @@ class LeaderboardEngine:
         leaderboard = []
         
         for slug in model_slugs:
-            logger.info(f"Leaderboard: Processing {slug.upper()}")
-            model_cls = get_model_from_registry(self.task_type, slug)
+            try:
+                logger.info(f"Leaderboard: Processing {slug.upper()}")
+                model_cls = get_model_from_registry(self.task_type, slug)
+                
+                # 1. Initialize the base model with the global random state
+                m_params = inspect.signature(model_cls).parameters
+                base_model = model_cls(random_state=self.config['settings']['random_state']) if 'random_state' in m_params else model_cls()
+                
+                # 2. WRAP THE MODEL: This is the critical update
+                # The wrapper now handles all the LabelEncoding/Decoding internally
+                
+                # 3. Build the pipeline with the wrapped model
+                pipeline = architect.build_pipeline(base_model, task_type = self.task_type)
+                
+                start = time.time()
+                cv_res = self.cv_engine.run_cv(pipeline, X, y, self.task_type)
+                duration = time.time() - start
+                
+                # 4. Evaluate using OOF predictions (which are now decoded string labels!)
+                metrics_res = self.evaluator.evaluate(y, cv_res['oof_predictions'])
+                
+                leaderboard.append({
+                    "Model": slug.upper(),
+                    "Time (s)": round(duration, 2),
+                    "CV Loss (Avg)": round(cv_res['mean_loss'], 4),
+                    **metrics_res
+                })
+            except Exception as e:
+                logger.error(
+                    f"Could not train model: {slug.upper()}: {e}"
+                )
             
-            # Init model with random_state if supported
-            m_params = inspect.signature(model_cls).parameters
-            model_inst = model_cls(random_state=self.config['settings']['random_state']) if 'random_state' in m_params else model_cls()
-            
-            pipeline = architect.build_pipeline(model_inst)
-            
-            start = time.time()
-            cv_res = self.cv_engine.run_cv(pipeline, X, y, self.task_type)
-            duration = time.time() - start
-            
-            metrics_res = self.evaluator.evaluate(y, cv_res['oof_predictions'])
-            
-            leaderboard.append({
-                "Model": slug.upper(),
-                "Time (s)": round(duration, 2),
-                "CV Loss (Avg)": round(cv_res['mean_loss'], 4),
-                **metrics_res
-            })
         return pd.DataFrame(leaderboard).sort_values("CV Loss (Avg)")

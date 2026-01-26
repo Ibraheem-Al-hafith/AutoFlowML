@@ -9,6 +9,8 @@ cleaning:
   nan_thresholds:
     numeric: 0.5         # Drop numeric columns if > 50% missing
     categorical: 0.3     # Drop categorical columns if > 30% missing
+  cardinality:
+    max_unique_share: 0.9  # Drops if 90% of rows are unique
 
 task_detection:
   cardinality_threshold: 10 # Unique values below this are "Category", above are "Text"
@@ -22,16 +24,16 @@ model_selection:
   models:
     classification:
       - "random_forest"
-      - "logistic_regression"
+      - "logistic"
       - "xgboost"
-      - "lightgbm"
+      # - "lightgbm"
       - "tree"
     regression:
-      - "random_forest"
+      # - "random_forest"
       - "ridge"
       - "xgboost"
       - "lightgbm"
-      - "tree"
+      # - "tree"
 
 evaluation:
   classification:

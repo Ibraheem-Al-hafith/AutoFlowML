@@ -18,8 +18,12 @@ def test_full_pipeline_flow():
     config = {
         "cleaning": {
             "variance": {"min_threshold": 0.1},
-            "nan_thresholds": {"numeric": 0.5, "categorical": 0.5}
+            "nan_thresholds": {"numeric": 0.5, "categorical": 0.5},
+            "cardinality": {
+            "max_unique_share":0.9
         }
+        },
+        
     }
 
     # 3. Engine: Detect Task & Get Model
@@ -31,7 +35,8 @@ def test_full_pipeline_flow():
     # 4. Architect: Build & Fit
     architect = PipelineArchitect(config)
     pipeline = architect.build_pipeline(
-        model_instance=model_inst
+        model_instance=model_inst,
+        task_type=task
     )
 
     pipeline.fit(X, y)
