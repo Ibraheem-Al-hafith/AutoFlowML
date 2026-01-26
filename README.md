@@ -1,3 +1,7 @@
+https://github.com/user-attachments/assets/ae81cc30-3810-4475-a454-1f0e7210772c
+
+---
+
 # 🌊 AutoFlowML: Enterprise-Grade AutoML Pipeline Engine
 
 **AutoFlowML** is a high-performance, modular AutoML framework designed to transform raw, messy datasets into production-ready Scikit-Learn pipelines. Built with a focus on **reproducibility**, **transparency**, and **interoperability**, it automates the heavy lifting of data science while giving the architect full control via a centralized configuration system.
@@ -86,7 +90,7 @@ uv run streamlit run app.py
 
 ```
 AutoFlowML/
-├── src/                    # Core source code
+├── src/                      # Core source code
 │   ├── __init__.py
 │   ├── engine.py             # Logic for task detection & model registry
 │   ├── cleaning.py           # Data guardrails (Variance, Cardinality, & NaN strippers)
@@ -99,15 +103,15 @@ AutoFlowML/
 │       └── logger.py         # Custom audit log handler
 ├── tests/
 │   ├── test_cleaning.py      # Validates Cleaning pipeline logic
-│   ├── test_config_loader.py  # Validates loading configurations
-│   ├── test_engine.py       # Validates the task detector
-│   ├── test_evaluation.py       # Validates the evaluation logic
-│   ├── test_full_pipeline.py       # Validates end-to-end fit/predict
+│   ├── test_config_loader.py # Validates loading configurations
+│   ├── test_engine.py        # Validates the task detector
+│   ├── test_evaluation.py    # Validates the evaluation logic
+│   ├── test_full_pipeline.py # Validates end-to-end fit/predict
 │   └── test_preprocessing.py # Validates the transformers logic
-├── app.py                  # Streamlit entry point
-├── config.yaml             # Centralized settings
-├── pyproject.toml          # uv/pip dependencies
-└── README.md               # Documentation
+├── app.py                    # Streamlit entry point
+├── config.yaml               # Centralized settings
+├── pyproject.toml            # uv/pip dependencies
+└── README.md                 # Documentation
 
 ```
 
@@ -207,12 +211,12 @@ Ensure your test folder mirrors your `src/` folder. This makes it intuitive for 
 
 ```text
 tests/
-  ├── test_cleaning.py      # Validates Cleaning pipeline logic
-  ├── test_config_loader.py  # Validates loading configurations
-  ├── test_engine.py       # Validates the task detector
-  ├── test_evaluation.py       # Validates the evaluation logic
-  ├── test_full_pipeline.py       # Validates end-to-end fit/predict
-  └── test_preprocessing.py # Validates the transformers logic
+  ├── test_cleaning.py        # Validates Cleaning pipeline logic
+  ├── test_config_loader.py   # Validates loading configurations
+  ├── test_engine.py          # Validates the task detector
+  ├── test_evaluation.py      # Validates the evaluation logic
+  ├── test_full_pipeline.py   # Validates end-to-end fit/predict
+  └── test_preprocessing.py   # Validates the transformers logic
 
 ```
 
