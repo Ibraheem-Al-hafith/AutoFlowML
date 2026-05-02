@@ -6,6 +6,10 @@ https://github.com/user-attachments/assets/ae81cc30-3810-4475-a454-1f0e7210772c
 
 **AutoFlowML** is a high-performance, modular AutoML framework designed to transform raw, messy datasets into production-ready Scikit-Learn pipelines. Built with a focus on **reproducibility**, **transparency**, and **interoperability**, it automates the heavy lifting of data science while giving the architect full control via a centralized configuration system.
 
+<div align="center">
+<img src="./logo.png">
+</div>
+
 [![Tests](https://github.com/Ibraheem-Al-hafith/AutoFlowML/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Ibraheem-Al-hafith/AutoFlowML/actions/workflows/test.yml)
 
 ---
